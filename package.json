@@ -17,8 +17,7 @@
   },
   "homepage": "https://github.com/leewalkergm/node-emu#readme",
   "dependencies": {
-    "binary": "^0.3.0",
-    "node-binary": "^1.1.0",
+    "dissolve": "^0.3.3",
     "put": "0.0.6"
   }
 }
