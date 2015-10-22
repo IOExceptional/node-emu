@@ -11,24 +11,7 @@ var acceptedBuilds = [
     5875  // 1.12.1
 ];
 
+var logonServer = require('./logon');
+var worldServer = require('./world');
 
-
-// Code
-
-var net = require('net');
-
-var logonServer = net.createServer(function(client) {
-    console.log('client connected');
-
-    client.on('end', function() {
-        console.log('Client disconnected');
-    });
-
-    //logonserver stuff here
-    client.write('hello\r\n');
-    client.pipe(client);
-});
-
-logonServer.listen(logonServerPort, function() { //'listening' listener
-  console.log('server bound');
-});
+logonServer(logonServerPort);
