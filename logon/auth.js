@@ -1,6 +1,12 @@
 var AUTH_LOGON_CHALLENGE = 0x00;
 var AUTH_LOGON_PROOF = 0x01;
 
+var acceptedBuilds = [
+    6141, // 1.12.3
+    6005, // 1.12.2
+    5875  // 1.12.1
+];
+
 
 /* 
     AuthLogonChallenge - ClientData
@@ -35,26 +41,23 @@ var parseLogonChallenge = function(data, cb) {
                                 .uint8('Version1')
                                 .uint8('Version2')
                                 .uint16le('Build')
-                                .uint8('Platform0')
-                                .uint8('Platform1')
-                                .uint8('Platform2')
-                                .uint8('Platform3')
-                                .uint8('OS0')
-                                .uint8('OS1')
-                                .uint8('OS2')
-                                .uint8('OS3')
                                 .tap(function () {
-                                    this.string("Country", 4)
-                                    .uint32be('WorldRegion_bias')
-                                    .uint32be('IP')
-                                    .uint8('AccountName_Length')
+                                    this.string("Platform", 4)
                                     .tap(function () {
-                                        this.string("AccountName", this.vars.AccountName_Length)
+                                        this.string("OS", 4)
                                         .tap(function () {
-                                            console.log(this.vars);
-
-                                            cb();
-                                        })
+                                            this.string("Country", 4)
+                                            .uint32be('WorldRegion_bias')
+                                            .uint32be('IP')
+                                            .uint8('AccountName_Length')
+                                            .tap(function () {
+                                                this.string("AccountName", this.vars.AccountName_Length)
+                                                .tap(function () {
+                                                    console.log("Account",this.vars.AccountName, "is connecting.");
+                                                    cb();
+                                                })
+                                            });
+                                        });
                                     });
                                 });
                             });
@@ -82,10 +85,10 @@ parseLogonChallenge.prototype.parseString = function (name, length) {
 
 var createLogonChallengeResponse = function () {
     return Put()
-            .word8(0)
-            .word8(0)
-            .word8(0)
-            .word64le(0)
+            .word8(0x00)
+            .word8(0x00)
+            .word8(0x05)//
+            .word8(0x03)
             .buffer();
 }
 
@@ -96,16 +99,18 @@ module.exports = function (client) {
             .tap(function () {
                 var cmd = this.vars.Command;
                 if(cmd == AUTH_LOGON_CHALLENGE) {
-                    parseLogonChallenge(data, function (logonChallenge) {
-
+                    parseLogonChallenge(data, function () {
                         var response = createLogonChallengeResponse();
-
+                        response = new Buffer([0x00, 0x00, 0x05, 0x03]);
                         client.write(response);
                         client.pipe(client);
+
+                        console.dir(response);
                     });
                 }
                 else if(cmd == AUTH_LOGON_PROOF) {
-
+                    console.log("Auth login proof");
+                    console.dir(data);
                 }
             });
 

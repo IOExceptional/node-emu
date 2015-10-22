@@ -1,8 +1,7 @@
 var auth = require('./auth');
+var net = require('net');
 
 module.exports = function (logonServerPort) {
-    var net = require('net');
-
     var logonServer = net.createServer(function(socket) {
         socket.on('end', function() {
             console.log('Client disconnected');
