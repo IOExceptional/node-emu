@@ -16,4 +16,4 @@ module.exports = function (logonServerPort) {
         var address = logonServer.address();
         console.log('server bound on: ' + address.address + ":" + address.port);
     });
-}
+};
